@@ -5,9 +5,30 @@
     xmlns:local="using:DeviceEmulator"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d" Loaded="Page_Loaded">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="90"/>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="80*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="100*"/>
+        </Grid.RowDefinitions>
+        <TextBox x:Name="CsvPathTb" Grid.Column="1" Margin="0,0,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Grid.Row="2"/>
+        <TextBlock x:Name="textBlock" Grid.Column="0" HorizontalAlignment="Center" Margin="0" TextWrapping="Wrap" Text="Path" VerticalAlignment="Center" Grid.Row="2"/>
+        <Button x:Name="button" Content="Find" Grid.Column="2" HorizontalAlignment="Center" Margin="0,0,0,0" Grid.Row="2" VerticalAlignment="Center" Click="button_Click"/>
+        <TextBlock x:Name="CaptionBox" HorizontalAlignment="Center" Margin="0" TextWrapping="Wrap" Text="Csv file" VerticalAlignment="Center" Grid.Row="1"/>
+        <CheckBox x:Name="ContainsHeaderCb" Content="With header raw" HorizontalAlignment="Center" Margin="0" Grid.Row="1" VerticalAlignment="Center" Grid.ColumnSpan="2" Grid.Column="1" IsChecked="True"/>
+        <Button x:Name="RunBtn" Content="Run" HorizontalAlignment="Center" Margin="0" Grid.Row="5" VerticalAlignment="Center" Click="RunBtn_Click" />
+        <TextBlock x:Name="textBlock_Copy" Grid.Column="0" HorizontalAlignment="Center" Margin="0,0,1,0" TextWrapping="Wrap" Text="Send delta, S" VerticalAlignment="Center" Grid.Row="4"/>
+        <TextBox x:Name="SendDeltaTb" Margin="0" TextWrapping="Wrap" Text="5" VerticalAlignment="Center" Grid.Row="4" Grid.Column="1"/>
     </Grid>
 </Page>
