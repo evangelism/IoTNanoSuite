@@ -1,0 +1,1 @@
+Endpoint=sb://ihsuproddbres023dednamespace.servicebus.windows.net/;EntityPath=iothub-ehub-nanohub-92829-7b10cf1d42;SharedAccessKeyName=iothubowner;SharedAccessKey=gAPc4E7mxL1cce23hO/HokEUjDYBQ9cbwTc/bnZwIEA=
