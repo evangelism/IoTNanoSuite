@@ -32,6 +32,7 @@ namespace DeviceEmulator
         private IList<string> _data;
         private string _connectionString = "HostName=NanoHub.azure-devices.net;DeviceId=Emulator;SharedAccessKey=rq48ZKTXYshDdqmqZqhBhdE5aZTKhgulSO8ZIyLPf1U=";
         private DeviceClient _deviceClient;
+        private string _deviceId = "Emulator";
 
         public MainPage()
         {
@@ -95,6 +96,7 @@ namespace DeviceEmulator
                 X = x,
                 Y = y,
                 Temp = temp,
+                DeviceId = _deviceId
             };
             var serializedString = JsonConvert.SerializeObject(info);
             var bytes = Encoding.UTF8.GetBytes(serializedString);

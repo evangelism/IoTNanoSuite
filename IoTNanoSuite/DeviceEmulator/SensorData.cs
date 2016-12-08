@@ -9,6 +9,7 @@ namespace DeviceEmulator
         public float X { get; set; }
         public float Y { get; set; }
         public float Temp { get; set; }
+        public string DeviceId { get; set; }
     }
 }
 
