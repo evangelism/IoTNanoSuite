@@ -1,14 +1,22 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.WindowsAzure.Storage.Table.DataServices;
 using System;
+using Microsoft.WindowsAzure.Storage;
+using System.Collections.Generic;
 
 namespace NanoDB
 {
     public class SensorData : TableEntity
     {
-        public SensorData(string DeviceId, DateTime moment)
+        public SensorData() { }
+
+        public override void ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)
         {
-            PartitionKey = DeviceId;
-            RowKey = moment.ToString("u");
+            base.ReadEntity(properties, operationContext);
+            X = float.Parse(properties["X"].StringValue);
+            Y = float.Parse(properties["Y"].StringValue);
+            Height = float.Parse(properties["Height"].StringValue);
+
         }
 
         public DateTime DateTime { get; set; }
