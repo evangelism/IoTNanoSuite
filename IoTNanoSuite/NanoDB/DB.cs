@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
-
+using System.Globalization;
+using System.Threading;
 
 namespace NanoDB
 {
@@ -23,11 +24,10 @@ namespace NanoDB
             Raw.CreateIfNotExists();
         }
 
-        public IEnumerable<SensorData> GetRawData(string DeviceId = "")
+        public SensorData[] GetRawData(string DeviceId = "")
         {
-            var res = from x in Raw.CreateQuery<SensorData>()
-                      select x;
-            return res.ToArray();
+            var q = new TableQuery<SensorData>();
+            return Raw.ExecuteQuery<SensorData>(q).ToArray();
         }
 
     }
