@@ -1,0 +1,35 @@
+{
+  "bindings": [
+    {
+      "type": "eventHubTrigger",
+      "name": "msg",
+      "path": "nanohub.azure-devices.net",
+      "consumerGroup": "$Default",
+      "connection": "Main",
+      "direction": "in"
+    },
+    {
+      "type": "table",
+      "name": "rawdata",
+      "tableName": "rawdata",
+      "connection": "nanostoredb_STORAGE",
+      "direction": "out"
+    },
+    {
+      "type": "table",
+      "name": "data",
+      "tableName": "data",
+      "connection": "nanostoredb_STORAGE",
+      "direction": "out"
+    },
+    {
+      "type": "table",
+      "name": "devices",
+      "tableName": "devices",
+      "take": 50,
+      "connection": "nanostoredb_STORAGE",
+      "direction": "in"
+    }
+  ],
+  "disabled": false
+}
