@@ -1,19 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System.Numerics;
 using System.Text;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 using Microsoft.Azure.Devices.Client;
 using Newtonsoft.Json;
 
@@ -24,85 +12,141 @@ namespace DeviceEmulator
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage
     {
-        private Windows.Storage.StorageFile _csvFile;
         readonly DispatcherTimer _dispatcherTimer = new DispatcherTimer();
-        private int _readRawIndex = 0;
-        private IList<string> _data;
         private string _connectionString = "HostName=NanoHub.azure-devices.net;DeviceId=Emulator;SharedAccessKey=rq48ZKTXYshDdqmqZqhBhdE5aZTKhgulSO8ZIyLPf1U=";
-        private DeviceClient _deviceClient;
-        private string _deviceId = "Emulator";
+        private readonly DeviceClient _deviceClient;
+
+        private Windows.Storage.StorageFile _csvFile;
+        private readonly CsvDataTable _csvData = new CsvDataTable();
 
         public MainPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+            _dispatcherTimer.Tick += _dispatcherTimer_Tick;
+            _deviceClient = DeviceClient.CreateFromConnectionString(_connectionString);
+            StopBtn.IsEnabled = false;
+            ErrorTextBlock.Text = string.Empty;
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
+        private async void FindCsvFileBtn_Click(object sender, RoutedEventArgs e)
         {
-            RunBtn.IsEnabled = false;
-        }
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary
+            };
 
-        private async void button_Click(object sender, RoutedEventArgs e)
-        {
-            var picker = new Windows.Storage.Pickers.FileOpenPicker();
-            picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
-            picker.SuggestedStartLocation =
-                Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
             picker.FileTypeFilter.Add(".csv");
 
-            Windows.Storage.StorageFile file = await picker.PickSingleFileAsync();
-            if (file != null)
+            _csvFile = await picker.PickSingleFileAsync();
+            CsvFilePathTb.Text = _csvFile.Path;
+        }
+
+        private void LoadCsvFileBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_csvFile != null)
             {
-                // Application now has read/write access to the picked file
-                _csvFile = file;
-                CsvPathTb.Text = file.Path;
-                RunBtn.IsEnabled = true;
+                _csvData.LoadFromCsvFile(_csvFile);
             }
         }
 
-        private async void RunBtn_Click(object sender, RoutedEventArgs e)
+        private void StartBtn_Click(object sender, RoutedEventArgs e)
         {
-
-            _data = await Windows.Storage.FileIO.ReadLinesAsync(_csvFile);
-            if (ContainsHeaderCb.IsChecked == true) _readRawIndex = 1;
-            else _readRawIndex = 0;
-
-            _dispatcherTimer.Tick += _dispatcherTimer_Tick;
             var deltaTimeS = int.Parse(SendDeltaTb.Text);
             _dispatcherTimer.Interval = new TimeSpan(0, 0, deltaTimeS);
+
+            if (UseCsvRb.IsChecked == true)
+            {
+                if (!_csvData.IsLoaded)
+                {
+                    ErrorTextBlock.Text = "Csv file is not loaded.";
+                    return;
+                }
+            }
+
             _dispatcherTimer.Start();
-
-
-            _deviceClient = DeviceClient.CreateFromConnectionString(_connectionString);
+            StopBtn.IsEnabled = true;
+            StartBtn.IsEnabled = false;
+            UseCsvRb.IsEnabled = false;
+            UseGeneratorRb.IsEnabled = false;
+            DeviceNameTb.IsEnabled = false;
+            SendDeltaTb.IsEnabled = false;
+            ErrorTextBlock.Text = string.Empty;
         }
 
         private async void _dispatcherTimer_Tick(object sender, object e)
         {
-            var raw = _data[_readRawIndex];
-            var values = raw.Split(';');
-            var dt = DateTime.Parse(values[0] + " " + values[1]);
-
-            var height = float.Parse(values[2].Replace(',', '.'), NumberStyles.Float);
-            var x = float.Parse(values[3].Replace(',', '.'), NumberStyles.Float);
-            var y = float.Parse(values[4].Replace(',', '.'), NumberStyles.Float);
-            var temp = float.Parse(values[5].Replace(',', '.'), NumberStyles.Float);
-
-            var info = new SensorData
+            SensorData data = new SensorData
             {
-                DateTime = dt,
-                Height = height,
-                X = x,
-                Y = y,
-                Temp = temp,
-                DeviceId = _deviceId
+                DeviceId = DeviceNameTb.Text
             };
-            var serializedString = JsonConvert.SerializeObject(info);
+
+            var powerBase = float.Parse(PowerValueBaseTb.Text.Replace(',', '.'));
+            data.Power = DataGenerator.GeneratePowerValue(powerBase);
+
+            var windBase = float.Parse(WindValueBaseTb.Text.Replace(',', '.'));
+            var windDelta = float.Parse(WindDeltaTb.Text.Replace(',', '.'));
+
+            var wind = DataGenerator.GenerateWindValue(windBase, windDelta);
+            data.WindX = wind.X;
+            data.WindY = wind.Y;
+
+            if (UseCsvRb.IsChecked == true)
+            {
+                var csvData = _csvData.ReadNext();
+                data.DateTime = csvData.DateTime;
+                data.X = csvData.X;
+                data.Y = csvData.Y;
+                data.Height = csvData.Height;
+                data.Temp = csvData.Temp;
+            }
+            else if (UseGeneratorRb.IsChecked == true)
+            {
+                data.DateTime = DateTime.Now;
+
+                var height = float.Parse(SensorHeightTb.Text.Replace(',', '.'));
+                data.Height = height;
+
+                var temperatureBase = float.Parse(PowerValueBaseTb.Text.Replace(',', '.'));
+                data.Temp = DataGenerator.GenerateTemperatureValue(temperatureBase);
+
+                var mainBaseX = float.Parse(MainValueBaseXTb.Text.Replace(',', '.'));
+                var mainBaseY = float.Parse(MainValueBaseYTb.Text.Replace(',', '.'));
+                var mainDelta = float.Parse(WindDeltaTb.Text.Replace(',', '.'));
+
+                var mainVal = DataGenerator.GenerateMainValue(new Vector2(mainBaseX, mainBaseY), mainDelta);
+
+                data.X = mainVal.X;
+                data.Y = mainVal.Y;
+            }
+
+            var serializedString = JsonConvert.SerializeObject(data);
             var bytes = Encoding.UTF8.GetBytes(serializedString);
             var message = new Message(bytes);
             await _deviceClient.SendEventAsync(message);
-            _readRawIndex++;
+        }
+
+        private void StopBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_dispatcherTimer.IsEnabled)
+            {
+                _dispatcherTimer.Stop();
+
+                StopBtn.IsEnabled = false;
+                StartBtn.IsEnabled = true;
+
+                UseCsvRb.IsEnabled = true;
+                UseGeneratorRb.IsEnabled = true;
+                DeviceNameTb.IsEnabled = true;
+                SendDeltaTb.IsEnabled = true;
+            }
+        }
+
+        private void ContainsHeaderCb_Checked(object sender, RoutedEventArgs e)
+        {
+            _csvData.ContainsHeader = ContainsHeaderCb.IsChecked == true;
         }
     }
 }
