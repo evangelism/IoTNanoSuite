@@ -110,18 +110,16 @@
             </Grid.RowDefinitions>
             <RadioButton x:Name="UseGeneratorRb" Content="Use generator" Grid.Column="1" HorizontalAlignment="Center" Margin="0" Grid.Row="2" VerticalAlignment="Center" IsChecked="True"/>
             <RadioButton x:Name="UseCsvRb" Content="Use CSV file" Grid.Column="1" HorizontalAlignment="Center" Margin="0" Grid.Row="3" VerticalAlignment="Center"/>
-
-
-
+            <TextBlock Grid.Row="2" Grid.Column="2" VerticalAlignment="Center">Drop Rate</TextBlock>
+            <TextBox x:Name="DropOut" VerticalAlignment="Center" Grid.Row="2" Grid.Column="3" Text="0"/>
             <Button x:Name="StartBtn" Content="Start" HorizontalAlignment="Center" Margin="0" Grid.Row="4" VerticalAlignment="Center" Click="StartBtn_Click" Grid.Column="1" />
             <Button x:Name="StopBtn" Content="Stop" HorizontalAlignment="Center" Margin="0" Grid.Row="4" VerticalAlignment="Center" Grid.Column="2" Click="StopBtn_Click" />
-
+            <Ellipse x:Name="Light" Grid.Row="4" Grid.Column="3" Height="20" Width="20"/>
             <TextBlock x:Name="textBlock1" Grid.Column="2" HorizontalAlignment="Center" Margin="0,0,1,0" TextWrapping="Wrap" Text="Send delta, S" VerticalAlignment="Center" Grid.Row="3"/>
             <TextBox x:Name="SendDeltaTb" Margin="0" TextWrapping="Wrap" Text="5" VerticalAlignment="Center" Grid.Row="3" Grid.Column="3"/>
             <TextBlock x:Name="textBlock2" Grid.Column="1" HorizontalAlignment="Center" Margin="0" Grid.Row="1" TextWrapping="Wrap" Text="Device name" VerticalAlignment="Center"/>
             <TextBox x:Name="DeviceNameTb" Margin="0" TextWrapping="Wrap" Text="Device1" VerticalAlignment="Center" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2"/>
             <TextBlock x:Name="ErrorTextBlock" Grid.Column="1" HorizontalAlignment="Center" Margin="0" Grid.Row="5" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Center" Grid.ColumnSpan="3" Grid.RowSpan="4" Foreground="Red"/>
-
         </Grid>
     </Grid>
 </Page>

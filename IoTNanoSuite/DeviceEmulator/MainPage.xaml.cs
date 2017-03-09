@@ -4,6 +4,8 @@ using System.Text;
 using Windows.UI.Xaml;
 using Microsoft.Azure.Devices.Client;
 using Newtonsoft.Json;
+using Windows.UI.Xaml.Media;
+using Windows.UI;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -122,11 +124,32 @@ namespace DeviceEmulator
                 data.Y = mainVal.Y;
             }
 
+            // Check if we want to add drop-out value to be interpolated later
+            var f = Utils.ParseFloat(DropOut.Text);
+            if (f!=float.NaN && Math.Abs(f)>0.0001)
+            {
+                if (Rnd.NextDouble()<f)
+                {
+                    switch (Rnd.Next(3))
+                    {
+                        case 0:
+                            data.Temp = float.NaN; break;
+                        case 1:
+                            data.X = float.NaN; break;
+                        case 2:
+                            data.Y = float.NaN; break;
+                    }
+                }
+            }
+            Light.Fill = new SolidColorBrush(Colors.Orange);
             var serializedString = JsonConvert.SerializeObject(data);
             var bytes = Encoding.UTF8.GetBytes(serializedString);
             var message = new Message(bytes);
             await _deviceClient.SendEventAsync(message);
+            Light.Fill = new SolidColorBrush(Colors.Transparent);
         }
+
+        Random Rnd = new Random();
 
         private void StopBtn_Click(object sender, RoutedEventArgs e)
         {

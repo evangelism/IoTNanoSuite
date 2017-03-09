@@ -8,7 +8,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 static float Threshold_A = 25.0f;
 
-public static void Run(string msg, CloudTable devices, ICollector<RawDataRecord> rawdata, ICollector<DataRecord> data, TraceWriter log)
+public static void Run(string msg, CloudTable devices, CloudTable interpol, ICollector<RawDataRecord> rawdata, ICollector<DataRecord> data, TraceWriter log)
 {
     log.Info($"C# Queue trigger function triggered: {msg}");
 
@@ -18,7 +18,7 @@ public static void Run(string msg, CloudTable devices, ICollector<RawDataRecord>
     rec.RowKey = rec.DateTime.ToString("u");
     rawdata.Add(rec);
     
-    // Calculate Alpha parameter and store filtered Data
+    // Calculate Alpha parameter
     log.Info($"Adding calculated data: {msg}");
     var d = new DataRecord(); 
     d.PartitionKey = rec.PartitionKey; d.RowKey = rec.RowKey;
@@ -26,8 +26,6 @@ public static void Run(string msg, CloudTable devices, ICollector<RawDataRecord>
     d.X = rec.X; d.Y = rec.Y; d.Temp = rec.Temp;
     d.Height = rec.Height;
     d.DateTime = rec.DateTime;
-    d.A = (float)Math.Sqrt(rec.X*rec.X+rec.Y*rec.Y);
-    data.Add(d);
 
     // Update device status
     log.Info($"Updating device status for deviceID=: {d.DeviceId}");
@@ -52,15 +50,28 @@ public static void Run(string msg, CloudTable devices, ICollector<RawDataRecord>
         operation = TableOperation.Replace(dev);
         devices.Execute(operation);
     }
+
+    // Store filtered Data
+    data.Add(d);
+
 }
+
 
 public static void update(DeviceRecord dev, DataRecord d)
 {
     dev.DateTime = d.DateTime;
-    dev.X = d.X; dev.Y = d.Y; dev.Temp = d.Temp;
-    dev.Height = d.Height; dev.A = d.A;
-    if (Math.Abs(dev.A)>Threshold_A) dev.Status = "BAD";
-    else dev.Status = "GOOD";
+    if (d.HasMissingValues)
+    {
+        dev.Status = "Interpolating";
+    }
+    else
+    {
+        dev.Status = ""
+        dev.X = d.X; dev.Y = d.Y; dev.Temp = d.Temp;
+        dev.Height = d.Height; dev.A = d.A;
+        if (Math.Abs(dev.A) > Threshold_A) dev.Health = "BAD";
+        else dev.Health = "GOOD";
+    }
 }
 
 public class DeviceRecord : TableEntity
@@ -69,33 +80,59 @@ public class DeviceRecord : TableEntity
     public float X { get;set; }
     public float Y { get;set; }
     public float A { get;set; }
+    public float WindX { get; set; }
+    public float WindY { get; set; }
+    public float WindA { get; set; }
+    public float Power { get; set; }
     public float Temp { get;set; }
     public float Height { get; set; }
     public string DeviceId { get; set; }
-    public string Status {get;set;}
+    public string Health {get;set;}
+    public string Status { get; set; }
 }
 
-public class RawDataRecord
+// The same class as SensorData in Generator, but with PartitionKey/RowKey added
+public class SensorData
 {
-    public string PartitionKey {get;set;}
-    public string RowKey {get;set;}
-    public DateTime DateTime {get;set;}
-    public float X { get;set; }
-    public float Y { get;set; }
-    public float Temp { get;set; }
-    public float Height { get; set; }
+    public string PartitionKey { get; set; }
+    public string RowKey { get; set; }
     public string DeviceId { get; set; }
+    public DateTime DateTime { get; set; }
+    public float Height { get; set; }
+    public float WindX { get; set; }
+    public float WindY { get; set; }
+    public float Power { get; set; }
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Temp { get; set; }
+    // A property to show if the data has missing values
+    public bool HasMissingValues
+    {
+        get
+        {
+            return X == float.NaN || Y == float.NaN || Temp == float.NaN || Height == float.NaN
+                                  || WindX == float.NaN || WindY == float.NaN || Power == float.NaN;
+        }
+    }
 }
 
-public class DataRecord
+// Class of the data that contains additional computed values after interpolation
+public class DataRecord : SensorData
 {
-    public string PartitionKey {get;set;}
-    public string RowKey {get;set;}
-    public DateTime DateTime {get;set;}
-    public float X { get;set; }
-    public float Y { get;set; }
-    public float Temp { get;set; }
-    public float Height { get; set; }
-    public string DeviceId { get; set; }
-    public float A {get;set;}
+    public float A {get; set; }
+    public float WindA { get; set; }    
+    public DataRecord(SensorData d)
+    {
+        this.Height = d.Height;
+        this.Temp = d.Temp;
+        this.X = d.X; this.Y = d.Y;
+        this.WindX = d.WindX; this.WindY = d.WindY;
+        this.Power = d.Power;
+        this.DateTime = d.DateTime;
+        this.PartitionKey = d.PartitionKey; this.RowKey = d.RowKey;
+
+        // Computed Properties
+        this.A = (float)Math.Sqrt(d.X * d.X + d.Y * d.Y);
+        this.WindA = (float)Math.Sqrt(d.WindX * d.WindX + d.WindY * d.WindY);
+    }
 }

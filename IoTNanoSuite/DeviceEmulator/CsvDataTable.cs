@@ -32,10 +32,10 @@ namespace DeviceEmulator
             var values = raw.Split(';');
             var dt = DateTime.Parse(values[0] + " " + values[1]);
 
-            var height = float.Parse(values[2].Replace(',', '.'), NumberStyles.Float);
-            var x = float.Parse(values[3].Replace(',', '.'), NumberStyles.Float);
-            var y = float.Parse(values[4].Replace(',', '.'), NumberStyles.Float);
-            var temp = float.Parse(values[5].Replace(',', '.'), NumberStyles.Float);
+            var height = Utils.ParseFloat(values[2]);
+            var x = Utils.ParseFloat(values[3]);
+            var y = Utils.ParseFloat(values[4]);
+            var temp = Utils.ParseFloat(values[5]);
 
             var data = new CsvDataRaw
             {

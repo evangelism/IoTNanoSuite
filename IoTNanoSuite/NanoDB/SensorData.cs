@@ -16,7 +16,6 @@ namespace NanoDB
             X = float.Parse(properties["X"].StringValue);
             Y = float.Parse(properties["Y"].StringValue);
             Height = float.Parse(properties["Height"].StringValue);
-
         }
 
         public DateTime DateTime { get; set; }
