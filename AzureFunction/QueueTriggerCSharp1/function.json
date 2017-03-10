@@ -11,7 +11,7 @@
     {
       "type": "table",
       "name": "rawdata",
-      "tableName": "rawdata",
+      "tableName": "sensordata",
       "connection": "nanostoredb_STORAGE",
       "direction": "out"
     },
@@ -26,6 +26,14 @@
       "type": "table",
       "name": "devices",
       "tableName": "devices",
+      "take": 50,
+      "connection": "nanostoredb_STORAGE",
+      "direction": "in"
+    },
+    {
+      "type": "table",
+      "name": "interpol",
+      "tableName": "interpol",
       "take": 50,
       "connection": "nanostoredb_STORAGE",
       "direction": "in"

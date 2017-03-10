@@ -21,7 +21,6 @@ public static void Run(string msg, CloudTable devices, CloudTable interpol, ICol
     rec.PartitionKey = rec.DeviceId;
     rec.RowKey = rec.DateTime.ToString("u");
     rawdata.Add(rec);
-    
     // Update device status
     log.Info($"Updating device status for deviceID=: {rec.DeviceId}");
     TableOperation operation = TableOperation.Retrieve<DeviceRecord>("Devices", rec.DeviceId);
@@ -73,8 +72,13 @@ public static void process(DeviceRecord dev, SensorData d, CloudTable interpol, 
                 var xx = new DataRecord(x);
                 data.Add(xx);
             }
-            dev.Status = "Normal";
         }
+        else
+        {
+            var xx = new DataRecord(d);
+            data.Add(xx);
+        }
+        dev.Status = "Normal";
         Utils.DeleteDevicePartition(interpol, d.DeviceId);
         Utils.InsertDeviceData(interpol, d);
     }

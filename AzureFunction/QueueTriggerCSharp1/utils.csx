@@ -12,13 +12,14 @@ public class Utils
     public static List<SensorData> GetDevicePartition(CloudTable tab, string PartitionKey)
     {
         var q = tab.CreateQuery<SensorData>();
-        var rec = (from x in q where x.DeviceId == PartitionKey select x).AsTableQuery();
-        return rec.Execute().ToList();
+        var rec = (from x in q where x.DeviceId == PartitionKey select x);
+        return rec.ToList();
     }
 
     public static void DeleteDevicePartition(CloudTable tab, string PartitionKey)
     {
         var res = GetDevicePartition(tab, PartitionKey);
+        if (res.Count==0) return;
         var bt = new TableBatchOperation();
         foreach(var x in res)
         {

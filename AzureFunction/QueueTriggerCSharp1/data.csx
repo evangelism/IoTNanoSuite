@@ -4,15 +4,15 @@ using Microsoft.WindowsAzure.Storage.Table;
 public class DeviceRecord : TableEntity
 {
     public DateTime DateTime { get; set; }
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float A { get; set; }
-    public float WindX { get; set; }
-    public float WindY { get; set; }
-    public float WindA { get; set; }
-    public float Power { get; set; }
-    public float Temp { get; set; }
-    public float Height { get; set; }
+    public double X { get; set; }
+    public double Y { get; set; }
+    public double A { get; set; }
+    public double WindX { get; set; }
+    public double WindY { get; set; }
+    public double WindA { get; set; }
+    public double Power { get; set; }
+    public double Temp { get; set; }
+    public double Height { get; set; }
     public string DeviceId { get; set; }
     public string Health { get; set; }
     public string Status { get; set; }
@@ -21,29 +21,27 @@ public class DeviceRecord : TableEntity
 // The same class as SensorData in Generator, but with PartitionKey/RowKey added
 public class SensorData : TableEntity
 {
-    public string PartitionKey { get; set; }
-    public string RowKey { get; set; }
     public string DeviceId { get; set; }
     public DateTime DateTime { get; set; }
-    public float Height { get; set; }
-    public float WindX { get; set; }
-    public float WindY { get; set; }
-    public float Power { get; set; }
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Temp { get; set; }
+    public double Height { get; set; }
+    public double WindX { get; set; }
+    public double WindY { get; set; }
+    public double Power { get; set; }
+    public double X { get; set; }
+    public double Y { get; set; }
+    public double Temp { get; set; }
     // A property to show if the data has missing values
     public bool HasMissingValues
     {
         get
         {
-            return float.IsNaN(X)
-                || float.IsNaN(Y)
-                || float.IsNaN(Temp)
-                || float.IsNaN(Height)
-                || float.IsNaN(WindX)
-                || float.IsNaN(WindY)
-                || float.IsNaN(Power);
+            return double.IsNaN(X)
+                || double.IsNaN(Y)
+                || double.IsNaN(Temp)
+                || double.IsNaN(Height)
+                || double.IsNaN(WindX)
+                || double.IsNaN(WindY)
+                || double.IsNaN(Power);
         }
     }
 
@@ -56,8 +54,8 @@ public class SensorData : TableEntity
 // Class of the data that contains additional computed values after interpolation
 public class DataRecord : SensorData
 {
-    public float A { get; set; }
-    public float WindA { get; set; }
+    public double A { get; set; }
+    public double WindA { get; set; }
     public DataRecord(SensorData d)
     {
         this.Height = d.Height;
