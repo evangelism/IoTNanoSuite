@@ -16,6 +16,9 @@ namespace NanoDB
         CloudTableClient CloudTable;
         CloudTable Raw;
 
+        public DB() : this(Config.DBConnectioString)
+        {
+        }
         public DB(string conn)
         {
             CloudStore = CloudStorageAccount.Parse(conn);

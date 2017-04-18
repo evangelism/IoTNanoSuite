@@ -17,7 +17,6 @@ namespace DeviceEmulator
     public sealed partial class MainPage
     {
         readonly DispatcherTimer _dispatcherTimer = new DispatcherTimer();
-        private string _connectionString = "HostName=NanoHub.azure-devices.net;DeviceId=Emulator;SharedAccessKey=rq48ZKTXYshDdqmqZqhBhdE5aZTKhgulSO8ZIyLPf1U=";
         private readonly DeviceClient _deviceClient;
 
         private Windows.Storage.StorageFile _csvFile;
@@ -27,7 +26,7 @@ namespace DeviceEmulator
         {
             InitializeComponent();
             _dispatcherTimer.Tick += _dispatcherTimer_Tick;
-            _deviceClient = DeviceClient.CreateFromConnectionString(_connectionString);
+            _deviceClient = DeviceClient.CreateFromConnectionString(Config.IoTHubConnectionString);
             StopBtn.IsEnabled = false;
             ErrorTextBlock.Text = string.Empty;
         }
