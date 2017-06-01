@@ -23,7 +23,7 @@ namespace NanoDB
         {
             CloudStore = CloudStorageAccount.Parse(conn);
             CloudTable = CloudStore.CreateCloudTableClient();
-            Raw = CloudTable.GetTableReference("rawdata");
+            Raw = CloudTable.GetTableReference("sensordata");
             Raw.CreateIfNotExists();
         }
 

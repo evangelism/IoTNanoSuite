@@ -8,6 +8,8 @@
     <asp:DropDownList runat="server" AutoPostBack="True" ID="ddDispType">
         <asp:ListItem Value="X,Y" />
         <asp:ListItem Value="Temp" />
+        <asp:ListItem Value="Wind" />
+        <asp:ListItem Value="Power" />
     </asp:DropDownList>
 
     <asp:Chart ID="MainChart" runat="server" Height="600" Width="800">

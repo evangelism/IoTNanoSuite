@@ -16,8 +16,25 @@ namespace WebPortal
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             var db = new NanoDB.DB();
             var data = db.GetRawData();
-            MainChart.Series[0].Points.DataBind(data, "DateTime", "X", "");
-            MainChart.Series[1].Points.DataBind(data, "DateTime", "Y", "");
+            if (ddDispType.SelectedValue == "X,Y")
+            {
+                MainChart.Series[0].Points.DataBind(data, "DateTime", "X", "");
+                MainChart.Series[1].Points.DataBind(data, "DateTime", "Y", "");
+            }
+            if (ddDispType.SelectedValue == "Temp")
+            {
+                MainChart.Series[0].Points.DataBind(data, "DateTime", "Temp", "");
+            }
+            if (ddDispType.SelectedValue == "Wind")
+            {
+                MainChart.Series[0].Points.DataBind(data, "DateTime", "WindX", "");
+                MainChart.Series[1].Points.DataBind(data, "DateTime", "WindY", "");
+            }
+            if (ddDispType.SelectedValue == "Power")
+            {
+                MainChart.Series[0].Points.DataBind(data, "DateTime", "Power", "");
+            }
+
         }
     }
 }
